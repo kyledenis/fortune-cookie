@@ -1,24 +1,20 @@
-// Require the Express module
 const express = require('express');
-
-const child_process = require('child_process');
-
-// Create an Express web application
+const { exec } = require('child_process');
 const app = express();
 
-// Set handler for the index of the website
 app.get('/', (req, res) => {
-	// Run the system `fortune` command and respond with the message
-	child_process.exec('fortune', (error, message) => {
-		if(error === null) {
-			res.send("Your fortune is: " + message);
-		} else {
-			res.send('Error: ' + error);
-		}
-	})
+	exec('fortune', (err, stdout, stderr) => {
+	if (err) {
+		console.error(stderr);
+		res.status(500).send('Something went wrong');
+		return;
+	}
+	const fortuneMessage = `Your fortune for today: ${stdout}`;
+	res.send(`${Date()}<br>${fortuneMessage}`);
+	});
 });
 
-// Start listening for HTTP requests on port 3000
-app.listen(3000, () => {
-	console.log('Server started');
+const port = 3000;
+app.listen(port, () => {
+	console.log(`Server started at http://localhost:${port}`);
 });
